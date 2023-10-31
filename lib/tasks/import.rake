@@ -10,7 +10,7 @@ namespace :import do
     puts "Import successfully completed. Added #{Merchant.count} Merchants"
   end
 
-  desc 'Import Orders from CSV file'
+  desc 'Import Orders'
   task :orders => :environment do
     csv_path = Rails.root.join('lib', 'data', 'orders.csv')
 
@@ -19,5 +19,11 @@ namespace :import do
     Import::CsvOrders.new(csv_path).call
 
     puts "Import successfully completed. Added #{Order.count} Orders"
+  end
+
+  desc 'Import all data'
+  task :all => :environment do
+    Rake::Task["import:merchants"].invoke
+    Rake::Task["import:orders"].invoke
   end
 end
