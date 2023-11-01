@@ -1,0 +1,4 @@
+generate_daily_disbursements_job:
+  cron: "* 8 * * *"
+  class: "DisbursementDailyJob"
+  queue: disbursements

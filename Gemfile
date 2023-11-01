@@ -48,6 +48,10 @@ gem "bootsnap", require: false
 gem 'parallel', '~> 1.23'
 gem 'smarter_csv', '~> 1.9', '>= 1.9.1'
 
+# Sidekiq
+gem 'sidekiq', '~> 7.2'
+gem 'sidekiq-cron', '~> 1.10', '>= 1.10.1'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ]
