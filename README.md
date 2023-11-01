@@ -5,7 +5,6 @@
 | 2022 | 1464 | 16346354.24 | 152047.65 | 44 | 690 | 
 | 2023 | 1024 | 17668506.43 | 162463.52 | 13 | 225 | 
 
-
 # MONEY CHECKS
 34329371.84 (total migrated orders sum)
 
@@ -37,3 +36,33 @@ Select sum(amount) from disbursements where fee_type = 2 AND EXTRACT(YEAR FROM o
 Select sum(amount) from disbursements where fee_type = 2 AND EXTRACT(YEAR FROM operated_at) = 2023;
 ```
 
+# INSTALL
+
+User rvm (or corresponding program) to handle ruby version and gemset
+
+`rvm install ruby-3.2.2`
+'rvm use ruby-3.2.2@sequra-denys-kriukov'
+
+Install gems
+
+`bundle install`
+
+Create db and migrate
+
+`rake db:setup`
+
+Import historical data form CSV files. It will take 6-7 minutes
+
+`rake import:all`
+
+Generate disbursements for historical data. It will take near 2 minutes.
+
+'rake history:calculate'
+ 
+Start sidekiq
+
+`bundle exec sidekiq`
+
+Check sidekiq running job exectue in rails console
+
+`Sidekiq::Cron::Job.all`
