@@ -3,12 +3,17 @@ class Disbursement < ApplicationRecord
   belongs_to :merchant
 
   validates :amount, presence: true
+  validates :operated_at, uniqueness: { scope: [:merchant_id, :fee_type] }
 
   before_save :set_reference
 
-  enum type: {
-    merchant: 0,
-    order_fee: 1,
+  scope :disbursed_this_month?, ->(merchant, month_range) {
+    where(merchant_id: merchant.id, created_at: month_range).any?
+  }
+
+  enum fee_type: {
+    merchant_fee: 0,
+    service_fee: 1,
     monthly_fee: 2
   }
 

@@ -16,12 +16,14 @@ ActiveRecord::Schema[7.1].define(version: 2023_10_31_225848) do
 
   create_table "disbursements", force: :cascade do |t|
     t.decimal "amount", precision: 10, scale: 2
-    t.integer "type", null: false
+    t.integer "fee_type", null: false
+    t.date "operated_at"
     t.string "reference"
     t.bigint "merchant_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["merchant_id"], name: "index_disbursements_on_merchant_id"
+    t.index ["operated_at", "merchant_id", "fee_type"], name: "idx_on_operated_at_merchant_id_fee_type_f88fafd7e1", unique: true
     t.index ["reference"], name: "index_disbursements_on_reference", unique: true
   end
 
