@@ -7,15 +7,17 @@ class Disbursement < ApplicationRecord
 
   before_save :set_reference
 
-  scope :disbursed_this_month?, ->(merchant, month_range) {
-    where(merchant_id: merchant.id, created_at: month_range).any?
-  }
-
   enum fee_type: {
     merchant_fee: 0,
     service_fee: 1,
     monthly_fee: 2
   }
+
+  scope :by_month, ->(merchant_id, month_rage) { where(merchant_id: merchant_id, operated_at: month_rage) }
+
+  def self.disbursed_this_month?(merchant, month_range)
+    month_range.include?(where(merchant_id: merchant.id).last.created_at)
+  end
 
   private
 

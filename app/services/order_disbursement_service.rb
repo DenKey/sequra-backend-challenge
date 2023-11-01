@@ -19,8 +19,16 @@ class OrderDisbursementService
   private
 
   def disbursement_frequency(merchant)
-    date = merchant.daily? ? @date : (@date - WEEK)..@date
+    if merchant.daily?
+      calculate(merchant, @date)
+    end
 
+    if merchant.weekly? && merchant.live_on.wday == @date.wday
+      calculate(merchant, (@date - WEEK)..@date)
+    end
+  end
+
+  def calculate(merchant, date)
     orders = orders_by_date(merchant, date)
     return if orders.empty?
     create_disbursement!(merchant, orders)
@@ -41,6 +49,13 @@ class OrderDisbursementService
     month.at_beginning_of_month..month.at_end_of_month
   end
 
+  # Calculating range for previous month
+  def previous_month
+    date = @date - 1.month
+    month = Date.new(date.year, date.month)
+    month.at_beginning_of_month..month.at_end_of_month
+  end
+
   # We shouldn't charge first month on live_on cuz it can be the last day of the month.
   # Generally it's a more business solution how to handle such cases
   def merchant_first_month?(merchant)
@@ -49,11 +64,11 @@ class OrderDisbursementService
 
   def create_disbursement!(merchant, orders)
     ActiveRecord::Base.transaction do
-      @service_fee = orders.map(&:service_fee).inject(0, &:+)
-      @merchant_fee = orders.map(&:merchant_fee).inject(0, &:+)
+      service_fee = orders.map(&:service_fee).inject(0, &:+)
+      merchant_fee = orders.map(&:merchant_fee).inject(0, &:+)
 
-      Disbursement.create!(merchant: merchant, amount: @service_fee, fee_type: :service_fee, operated_at: @date)
-      Disbursement.create!(merchant: merchant, amount: @merchant_fee, fee_type: :merchant_fee, operated_at: @date)
+      Disbursement.create!(merchant: merchant, amount: service_fee, fee_type: :service_fee, operated_at: @date)
+      Disbursement.create!(merchant: merchant, amount: merchant_fee, fee_type: :merchant_fee, operated_at: @date)
 
       create_monthly_fee!(merchant)
 
@@ -64,10 +79,12 @@ class OrderDisbursementService
   def create_monthly_fee!(merchant)
     return if merchant_first_month?(merchant)
     return if Disbursement.disbursed_this_month?(merchant, this_month)
-    return if @service_fee > merchant.minimum_monthly_fee
+    disbursements = Disbursement.by_month(merchant.id, previous_month)
+    disbursements_fee = disbursements.map(&:amount).inject(0, &:+)
 
-    monthly_fee = merchant.minimum_monthly_fee - @service_fee
+    return if disbursements_fee > merchant.minimum_monthly_fee
 
+    monthly_fee = merchant.minimum_monthly_fee - disbursements_fee
     Disbursement.create!(merchant: merchant, amount: monthly_fee, fee_type: :monthly_fee, operated_at: @date)
   end
 end
