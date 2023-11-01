@@ -17,7 +17,7 @@ module Import
       ActiveRecord::Base.connection.reconnect!
 
       # Caching of Merchants {reference => id}
-      merchants = Merchant.pluck(:id, :reference).to_h.invert
+      merchants = Merchant.pluck(:reference, :id).to_h
 
       return if merchants.empty?
 
