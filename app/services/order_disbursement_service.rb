@@ -78,7 +78,7 @@ class OrderDisbursementService
   def create_monthly_fee!(merchant)
     return if merchant_first_month?(merchant)
     return if Disbursement.disbursed_this_month?(merchant, this_month)
-    disbursements = Disbursement.by_month(merchant.id, previous_month)
+    disbursements = Disbursement.by_month(merchant.id, previous_month).where(fee_type: :service_fee)
     disbursements_fee = disbursements.map(&:amount).inject(0, &:+)
 
     return if disbursements_fee > merchant.minimum_monthly_fee
