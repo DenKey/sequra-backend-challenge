@@ -6,7 +6,7 @@ module History
 
       # We should add additional week after last day to be sure that weekly merchants
       # will handle
-      dates = (started_at..ended_at).each_slice(10).to_a
+      dates = (started_at..(ended_at + 7.days)).each_slice(10).to_a
 
       Parallel.map(dates) do |date_slice|
         worker(date_slice)

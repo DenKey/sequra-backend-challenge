@@ -9,24 +9,18 @@ class OrderDisbursementService
   def call
     # Active merchants that have orders in selected date
     # we should avoid to check of entire list of merchants
-    merchants = Merchant.where(id: active_merchants_ids)
-
-    merchants.each do |merchant|
-      disbursement_frequency(merchant)
-    end
-  end
-
-  private
-
-  def disbursement_frequency(merchant)
-    if merchant.daily?
+    daily_active_merchants.each do |merchant|
       calculate(merchant, @date)
     end
 
-    if merchant.weekly? && merchant.live_on.wday == @date.wday
+    weekly_active_merchants.each do |merchant|
       calculate(merchant, (@date - WEEK)..@date)
     end
+
+    true
   end
+
+  private
 
   def calculate(merchant, date)
     orders = orders_by_date(merchant, date)
@@ -35,8 +29,13 @@ class OrderDisbursementService
   end
 
   # Merchants Ids that have active orders
-  def active_merchants_ids
-    Order.by_date(@date).pluck(:merchant_id).uniq
+  def daily_active_merchants
+    Order.by_date(@date).includes(:merchant).where(merchant: { disbursement_frequency: :daily }).map(&:merchant).uniq
+  end
+
+  # Merchants Ids with weekly disbursement
+  def weekly_active_merchants
+    Merchant.where(disbursement_frequency: :weekly).filter {|m| m.live_on.wday == @date.wday }
   end
 
   def orders_by_date(merchant, date)
