@@ -1,24 +1,39 @@
-# README
+# TABLE
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+| Year | Number of Disbursement | Amount disbursed to merchants | Amount of order fees | Number of monthly fees charged (From minimum monthly fee) | Amount of monthly fee charged (From minimum monthly fee) |
+| :---: | ---: | ---: | ---: | ---: | ---: |
+| 2022 | 1464 | 16346354.24 | 152047.65 | 44 | 690 | 
+| 2023 | 1024 | 17668506.43 | 162463.52 | 13 | 225 | 
 
-Things you may want to cover:
 
-* Ruby version
+# MONEY CHECKS
+34329371.84 (total migrated orders sum)
 
-* System dependencies
+34329371.84 = 16346354.24 + 17668506.43 + 152047.65 + 162463.52 (total disbursted)
 
-* Configuration
+0 (diff)
 
-* Database creation
+# TABLE QUERIES
 
-* Database initialization
+```
+// Disbursement count
+Select count(*) from disbursements where fee_type = 0 AND EXTRACT(YEAR FROM operated_at) = 2022;
+Select count(*) from disbursements where fee_type = 0 AND EXTRACT(YEAR FROM operated_at) = 2023;
 
-* How to run the test suite
+// Merchant fee sum
+Select sum(amount) from disbursements where fee_type = 0 AND EXTRACT(YEAR FROM operated_at) = 2022;
+Select sum(amount) from disbursements where fee_type = 0 AND EXTRACT(YEAR FROM operated_at) = 2023;
 
-* Services (job queues, cache servers, search engines, etc.)
+// Service fee sum
+Select sum(amount) from disbursements where fee_type = 1 AND EXTRACT(YEAR FROM operated_at) = 2022;
+Select sum(amount) from disbursements where fee_type = 1 AND EXTRACT(YEAR FROM operated_at) = 2023;
 
-* Deployment instructions
+// Monthly fee count
+Select count(*) from disbursements where fee_type = 2 AND EXTRACT(YEAR FROM operated_at) = 2022;
+Select count(*) from disbursements where fee_type = 2 AND EXTRACT(YEAR FROM operated_at) = 2023;
 
-* ...
+// Monthly fee Sum
+Select sum(amount) from disbursements where fee_type = 2 AND EXTRACT(YEAR FROM operated_at) = 2022;
+Select sum(amount) from disbursements where fee_type = 2 AND EXTRACT(YEAR FROM operated_at) = 2023;
+```
+
