@@ -19,7 +19,10 @@ class Order < ApplicationRecord
 
   scope :disbursed, -> { where(disbursed: true) }
   scope :non_disbursed, -> { where(disbursed: false) }
-  scope :by_date, ->(date) { where(created_at: date) }
+  scope :by_date, ->(date) {
+    date = date.kind_of?(Range) ? date : date.beginning_of_day..date.end_of_day
+    where(created_at: date)
+  }
 
   def service_fee
     case amount

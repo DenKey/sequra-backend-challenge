@@ -28,12 +28,12 @@ class OrderDisbursementService
     create_disbursement!(merchant, orders)
   end
 
-  # Merchants Ids that have active orders
+  # Merchants that have active orders
   def daily_active_merchants
     Order.by_date(@date).includes(:merchant).where(merchant: { disbursement_frequency: :daily }).map(&:merchant).uniq
   end
 
-  # Merchants Ids with weekly disbursement
+  # Merchants with weekly disbursement
   def weekly_active_merchants
     Merchant.where(disbursement_frequency: :weekly).filter {|m| m.live_on.wday == @date.wday }
   end
@@ -55,21 +55,20 @@ class OrderDisbursementService
     month.at_beginning_of_month..month.at_end_of_month
   end
 
-  # We shouldn't charge first month on live_on cuz it can be the last day of the month.
-  # Generally it's a more business solution how to handle such cases
+  # We shouldn't charge previous month before live_on
   def merchant_first_month?(merchant)
     (@date.at_beginning_of_month..@date.at_end_of_month).include?(merchant.live_on)
   end
 
   def create_disbursement!(merchant, orders)
     ActiveRecord::Base.transaction do
+      create_monthly_fee!(merchant)
+
       service_fee = orders.map(&:service_fee).inject(0, &:+)
       merchant_fee = orders.map(&:merchant_fee).inject(0, &:+)
 
       Disbursement.create!(merchant: merchant, amount: service_fee, fee_type: :service_fee, operated_at: @date)
       Disbursement.create!(merchant: merchant, amount: merchant_fee, fee_type: :merchant_fee, operated_at: @date)
-
-      create_monthly_fee!(merchant)
 
       orders.update_all(disbursed: true)
     end
@@ -80,7 +79,6 @@ class OrderDisbursementService
     return if Disbursement.disbursed_this_month?(merchant, this_month)
     disbursements = Disbursement.by_month(merchant.id, previous_month).where(fee_type: :service_fee)
     disbursements_fee = disbursements.map(&:amount).inject(0, &:+)
-
     return if disbursements_fee > merchant.minimum_monthly_fee
 
     monthly_fee = merchant.minimum_monthly_fee - disbursements_fee

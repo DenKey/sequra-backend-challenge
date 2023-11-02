@@ -16,7 +16,9 @@ class Disbursement < ApplicationRecord
   scope :by_month, ->(merchant_id, month_rage) { where(merchant_id: merchant_id, operated_at: month_rage) }
 
   def self.disbursed_this_month?(merchant, month_range)
-    month_range.include?(where(merchant_id: merchant.id).last.created_at)
+    last_operated_at = where(merchant_id: merchant.id).last&.operated_at
+    return if last_operated_at.nil?
+    month_range.include?(where(merchant_id: merchant.id).last.operated_at)
   end
 
   private
