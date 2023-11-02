@@ -66,3 +66,15 @@ Start sidekiq
 Check sidekiq running job exectue in rails console
 
 `Sidekiq::Cron::Job.all`
+
+# NOTE
+Hi Guys,
+
+During my work with this task, I made the assumption that all data in CSV was valid and clear, so I skipped 
+a lot of validation work and exception control. Due to the lack of time, I added only base specs for the main service.
+Adding class comments in Rails projects is a discussable thing in each team so here I am laying on the readability of code.
+
+Thanks for your time.
+
+Best regards,
+Den Key
