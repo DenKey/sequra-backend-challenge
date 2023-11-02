@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe OrderDisbursementService do
@@ -8,8 +10,8 @@ RSpec.describe OrderDisbursementService do
       let(:date) { Date.new(2023, 10, 11) }
       let(:date_day_before) { Date.new(2023, 10, 10) }
       let!(:merchant) { create(:merchant) }
-      let!(:order_1) { create(:order, merchant: merchant, created_at: date_day_before, amount: 30.0) }
-      let!(:order_2) { create(:order, merchant: merchant, created_at: date, amount: 25.0) }
+      let!(:order1) { create(:order, merchant:, created_at: date_day_before, amount: 30.0) }
+      let!(:order2) { create(:order, merchant:, created_at: date, amount: 25.0) }
 
       it 'creates valid count of disbursements' do
         expect { subject }.to change { Disbursement.count }.by(3)
@@ -36,21 +38,23 @@ RSpec.describe OrderDisbursementService do
 
     context 'with reaching last month limit' do
       let(:date) { 1.days.ago.to_date }
-      let!(:last_month_disbursement) { create(:disbursement,
-                                             merchant: merchant,
-                                             operated_at: 1.month.ago,
-                                             fee_type: :service_fee,
-                                             amount: 100) }
+      let!(:last_month_disbursement) do
+        create(:disbursement,
+               merchant:,
+               operated_at: 1.month.ago,
+               fee_type: :service_fee,
+               amount: 100)
+      end
       let!(:merchant) { create(:merchant, minimum_monthly_fee: 1) }
-      let!(:order_1) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 121) }
-      let!(:order_2) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 321) }
-      let!(:order_3) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 66.12) }
-      let!(:order_4) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 21.45) }
-      let!(:order_5) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 212.1) }
-      let!(:order_6) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 25.41) }
-      let!(:order_8) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 33.12) }
-      let!(:order_9) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 100.0) }
-      let!(:order_10) { create(:order, merchant: merchant, created_at: 1.days.ago, amount: 100.0) }
+      let!(:order1) { create(:order, merchant:, created_at: 1.days.ago, amount: 121) }
+      let!(:order2) { create(:order, merchant:, created_at: 1.days.ago, amount: 321) }
+      let!(:order3) { create(:order, merchant:, created_at: 1.days.ago, amount: 66.12) }
+      let!(:order4) { create(:order, merchant:, created_at: 1.days.ago, amount: 21.45) }
+      let!(:order5) { create(:order, merchant:, created_at: 1.days.ago, amount: 212.1) }
+      let!(:order6) { create(:order, merchant:, created_at: 1.days.ago, amount: 25.41) }
+      let!(:order8) { create(:order, merchant:, created_at: 1.days.ago, amount: 33.12) }
+      let!(:order9) { create(:order, merchant:, created_at: 1.days.ago, amount: 100.0) }
+      let!(:order10) { create(:order, merchant:, created_at: 1.days.ago, amount: 100.0) }
 
       it 'creates valid count of disbursements' do
         expect { subject }.to change { Disbursement.count }.by(2)
@@ -76,13 +80,15 @@ RSpec.describe OrderDisbursementService do
 
     context 'disbursed this month' do
       let(:date) { Date.new(2023, 10, 12) }
-      let!(:last_month_disbursement) { create(:disbursement,
-                                              merchant: merchant,
-                                              operated_at: Date.new(2023, 10, 10),
-                                              fee_type: :service_fee,
-                                              amount: 100) }
+      let!(:last_month_disbursement) do
+        create(:disbursement,
+               merchant:,
+               operated_at: Date.new(2023, 10, 10),
+               fee_type: :service_fee,
+               amount: 100)
+      end
       let!(:merchant) { create(:merchant) }
-      let!(:order_1) { create(:order, merchant: merchant, created_at: date, amount: 100.0) }
+      let!(:order1) { create(:order, merchant:, created_at: date, amount: 100.0) }
 
       it 'creates valid count of disbursements' do
         expect { subject }.to change { Disbursement.count }.by(2)
@@ -95,14 +101,14 @@ RSpec.describe OrderDisbursementService do
       let(:date) { Date.new(2023, 10, 9) } # monday
       let(:date_week_ago) { Date.new(2023, 10, 2) } # monday
       let(:live_on) { Date.new(2023, 9, 4) } # monday
-      let!(:merchant) { create(:merchant, :weekly, live_on: live_on) }
-      let!(:order_1) { create(:order, merchant: merchant, created_at: date_week_ago, amount: 30.0) }
-      let!(:order_2) { create(:order, merchant: merchant, created_at: date_week_ago + 1.day, amount: 2.0) }
-      let!(:order_3) { create(:order, merchant: merchant, created_at: date_week_ago + 2.days, amount: 3.0) }
-      let!(:order_4) { create(:order, merchant: merchant, created_at: date_week_ago + 3.days, amount: 4.0) }
-      let!(:order_5) { create(:order, merchant: merchant, created_at: date_week_ago + 4.days, amount: 2.0) }
-      let!(:order_6) { create(:order, merchant: merchant, created_at: date_week_ago + 5.days, amount: 1.0) }
-      let!(:order_7) { create(:order, merchant: merchant, created_at: date_week_ago + 6.days, amount: 2.0) }
+      let!(:merchant) { create(:merchant, :weekly, live_on:) }
+      let!(:order1) { create(:order, merchant:, created_at: date_week_ago, amount: 30.0) }
+      let!(:order2) { create(:order, merchant:, created_at: date_week_ago + 1.day, amount: 2.0) }
+      let!(:order3) { create(:order, merchant:, created_at: date_week_ago + 2.days, amount: 3.0) }
+      let!(:order4) { create(:order, merchant:, created_at: date_week_ago + 3.days, amount: 4.0) }
+      let!(:order5) { create(:order, merchant:, created_at: date_week_ago + 4.days, amount: 2.0) }
+      let!(:order6) { create(:order, merchant:, created_at: date_week_ago + 5.days, amount: 1.0) }
+      let!(:order7) { create(:order, merchant:, created_at: date_week_ago + 6.days, amount: 2.0) }
 
       it 'creates valid count of disbursements' do
         expect { subject }.to change { Disbursement.count }.by(3)
@@ -118,19 +124,21 @@ RSpec.describe OrderDisbursementService do
       let(:date) { Date.new(2023, 10, 9) } # monday
       let(:date_week_ago) { Date.new(2023, 10, 2) } # monday
       let(:live_on) { Date.new(2023, 9, 4) } # monday
-      let!(:last_month_disbursement) { create(:disbursement,
-                                              merchant: merchant,
-                                              operated_at: 1.month.ago,
-                                              fee_type: :service_fee,
-                                              amount: 100) }
-      let!(:merchant) { create(:merchant, :weekly, live_on: live_on, minimum_monthly_fee: 5) }
-      let!(:order_1) { create(:order, merchant: merchant, created_at: date_week_ago, amount: 30.0) }
-      let!(:order_2) { create(:order, merchant: merchant, created_at: date_week_ago + 1.day, amount: 20.0) }
-      let!(:order_3) { create(:order, merchant: merchant, created_at: date_week_ago + 2.days, amount: 393.0) }
-      let!(:order_4) { create(:order, merchant: merchant, created_at: date_week_ago + 3.days, amount: 40.0) }
-      let!(:order_5) { create(:order, merchant: merchant, created_at: date_week_ago + 4.days, amount: 223.0) }
-      let!(:order_6) { create(:order, merchant: merchant, created_at: date_week_ago + 5.days, amount: 123.0) }
-      let!(:order_7) { create(:order, merchant: merchant, created_at: date_week_ago + 6.days, amount: 212.0) }
+      let!(:last_month_disbursement) do
+        create(:disbursement,
+               merchant:,
+               operated_at: 1.month.ago,
+               fee_type: :service_fee,
+               amount: 100)
+      end
+      let!(:merchant) { create(:merchant, :weekly, live_on:, minimum_monthly_fee: 5) }
+      let!(:order1) { create(:order, merchant:, created_at: date_week_ago, amount: 30.0) }
+      let!(:order2) { create(:order, merchant:, created_at: date_week_ago + 1.day, amount: 20.0) }
+      let!(:order3) { create(:order, merchant:, created_at: date_week_ago + 2.days, amount: 393.0) }
+      let!(:order4) { create(:order, merchant:, created_at: date_week_ago + 3.days, amount: 40.0) }
+      let!(:order5) { create(:order, merchant:, created_at: date_week_ago + 4.days, amount: 223.0) }
+      let!(:order6) { create(:order, merchant:, created_at: date_week_ago + 5.days, amount: 123.0) }
+      let!(:order7) { create(:order, merchant:, created_at: date_week_ago + 6.days, amount: 212.0) }
 
       it 'creates valid count of disbursements' do
         expect { subject }.to change { Disbursement.count }.by(2)

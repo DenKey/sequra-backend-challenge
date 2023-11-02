@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 namespace :history do
   desc 'Calculate historical disbursements'
-  task :calculate => :environment do
+  task calculate: :environment do
     puts 'Calculation started.'
 
     History::DataHandler.new.call

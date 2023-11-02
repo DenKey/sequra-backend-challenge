@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateDisbursements < ActiveRecord::Migration[7.1]
   def change
     create_table :disbursements do |t|
@@ -9,6 +11,6 @@ class CreateDisbursements < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-    add_index :disbursements, [:operated_at, :merchant_id, :fee_type], unique: true
+    add_index :disbursements, %i[operated_at merchant_id fee_type], unique: true
   end
 end

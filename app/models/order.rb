@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Order < ApplicationRecord
   # Storing such kind of constants should be handled carefully cuz in case of changes
   # of values inside we should keep in codebase all previous states. It will help in data
@@ -9,8 +11,7 @@ class Order < ApplicationRecord
       FIFTY_TO_THREE_HUNDREDS: 0.95,
       MORE_THAN_THREE_HUNDREDS: 0.85
     }
-  }
-
+  }.freeze
 
   belongs_to :merchant
 
@@ -19,8 +20,8 @@ class Order < ApplicationRecord
 
   scope :disbursed, -> { where(disbursed: true) }
   scope :non_disbursed, -> { where(disbursed: false) }
-  scope :by_date, ->(date) {
-    date = date.kind_of?(Range) ? date : date.beginning_of_day..date.end_of_day
+  scope :by_date, lambda { |date|
+    date = date.is_a?(Range) ? date : date.beginning_of_day..date.end_of_day
     where(created_at: date)
   }
 

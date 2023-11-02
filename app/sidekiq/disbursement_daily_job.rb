@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Generate Disbursement by previous date
 class DisbursementDailyJob
   include Sidekiq::Job

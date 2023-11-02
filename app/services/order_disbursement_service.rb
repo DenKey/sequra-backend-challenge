@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OrderDisbursementService
   WEEK = 7.days
 
@@ -25,6 +27,7 @@ class OrderDisbursementService
   def calculate(merchant, date)
     orders = orders_by_date(merchant, date)
     return if orders.empty?
+
     create_disbursement!(merchant, orders)
   end
 
@@ -35,7 +38,7 @@ class OrderDisbursementService
 
   # Merchants with weekly disbursement
   def weekly_active_merchants
-    Merchant.where(disbursement_frequency: :weekly).filter {|m| m.live_on.wday == @date.wday }
+    Merchant.where(disbursement_frequency: :weekly).filter { |m| m.live_on.wday == @date.wday }
   end
 
   def orders_by_date(merchant, date)
@@ -67,8 +70,8 @@ class OrderDisbursementService
       service_fee = orders.map(&:service_fee).inject(0, &:+)
       merchant_fee = orders.map(&:merchant_fee).inject(0, &:+)
 
-      Disbursement.create!(merchant: merchant, amount: service_fee, fee_type: :service_fee, operated_at: @date)
-      Disbursement.create!(merchant: merchant, amount: merchant_fee, fee_type: :merchant_fee, operated_at: @date)
+      Disbursement.create!(merchant:, amount: service_fee, fee_type: :service_fee, operated_at: @date)
+      Disbursement.create!(merchant:, amount: merchant_fee, fee_type: :merchant_fee, operated_at: @date)
 
       orders.update_all(disbursed: true)
     end
@@ -77,11 +80,12 @@ class OrderDisbursementService
   def create_monthly_fee!(merchant)
     return if merchant_first_month?(merchant)
     return if Disbursement.disbursed_this_month?(merchant, this_month)
+
     disbursements = Disbursement.by_month(merchant.id, previous_month).where(fee_type: :service_fee)
     disbursements_fee = disbursements.map(&:amount).inject(0, &:+)
     return if disbursements_fee > merchant.minimum_monthly_fee
 
     monthly_fee = merchant.minimum_monthly_fee - disbursements_fee
-    Disbursement.create!(merchant: merchant, amount: monthly_fee, fee_type: :monthly_fee, operated_at: @date)
+    Disbursement.create!(merchant:, amount: monthly_fee, fee_type: :monthly_fee, operated_at: @date)
   end
 end

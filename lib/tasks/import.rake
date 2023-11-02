@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 namespace :import do
   desc 'Import Merchants'
-  task :merchants => :environment do
+  task merchants: :environment do
     csv_path = Rails.root.join('lib', 'data', 'merchants.csv')
 
     puts 'Merchants import started.'
@@ -11,7 +13,7 @@ namespace :import do
   end
 
   desc 'Import Orders'
-  task :orders => :environment do
+  task orders: :environment do
     csv_path = Rails.root.join('lib', 'data', 'orders.csv')
 
     puts 'Orders import started.(It might take near 6-7 minutes)'
@@ -22,8 +24,8 @@ namespace :import do
   end
 
   desc 'Import all data'
-  task :all => :environment do
-    Rake::Task["import:merchants"].invoke
-    Rake::Task["import:orders"].invoke
+  task all: :environment do
+    Rake::Task['import:merchants'].invoke
+    Rake::Task['import:orders'].invoke
   end
 end
