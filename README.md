@@ -2,8 +2,8 @@
 
 | Year | Number of Disbursement | Amount disbursed to merchants | Amount of order fees | Number of monthly fees charged (From minimum monthly fee) | Amount of monthly fee charged (From minimum monthly fee) |
 | :---: | ---: | ---: | ---: | ---: | ---: |
-| 2022 | 1471 | 16471127.75 | 153192.11 | 111 | 1777.28 | 
-| 2023 | 1024 | 17543732.92 | 161319.06 | 81 | 1576.16 | 
+| 2022 | 1471 | 16471127.75 | 153192.11 | 8 | 126.20 | 
+| 2023 | 1024 | 17543732.92 | 161319.06 | 8 | 144.74 | 
 
 # MONEY CHECKS
 34329371.84 (total migrated orders sum)
