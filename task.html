@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>seQura backend coding challenge | Backend coding challenge</title>
+<meta name="generator" content="Jekyll v3.9.3" />
+<meta property="og:title" content="seQura backend coding challenge" />
+<meta name="author" content="seQura tech team" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Backend coding challenge" />
+<meta property="og:description" content="Backend coding challenge" />
+<link rel="canonical" href="https://sequra.github.io/backend-challenge/" />
+<meta property="og:url" content="https://sequra.github.io/backend-challenge/" />
+<meta property="og:site_name" content="seQura backend coding challenge" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="seQura backend coding challenge" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","author":{"@type":"Person","name":"seQura tech team"},"description":"Backend coding challenge","headline":"seQura backend coding challenge","name":"seQura backend coding challenge","url":"https://sequra.github.io/backend-challenge/"}</script>
+<!-- End Jekyll SEO tag -->
+
+    <link rel="stylesheet" href="/backend-challenge/assets/css/style.css?v=ff82bd0e1ffc417a7b2d7896bc4365c238bddccb">
+    <!-- start custom head snippets, customize with your own _includes/head-custom.html file -->
+
+<!-- Setup Google Analytics -->
+
+
+
+<!-- You can set your favicon here -->
+<!-- link rel="shortcut icon" type="image/x-icon" href="/backend-challenge/favicon.ico" -->
+
+<!-- end custom head snippets -->
+
+  </head>
+  <body>
+    <div class="container-lg px-3 my-5 markdown-body">
+      
+      <h1><a href="https://sequra.github.io/backend-challenge/">seQura backend coding challenge</a></h1>
+      
+
+      <p>This coding challenge is for people who applied to the Senior Backend Developer position at seQura. The problem to solve is a simplified version of our daily problems.</p>
+
+<h2 id="context">Context</h2>
+
+<p>seQura provides e-commerce shops with a flexible payment method that allows shoppers to split their purchases in three months without any cost. In exchange, seQura earns a fee for each purchase.</p>
+
+<p>When shoppers use this payment method, they pay directly to seQura. Then, seQura disburses the orders to merchants with different frequencies and pricing.</p>
+
+<p>This challenge is about implementing the process of paying merchants.</p>
+
+<h2 id="problem-statement">Problem statement</h2>
+
+<p>We have to implement a system to automate the calculation of merchants’ disbursements payouts and seQura commissions for existing, present in the CSV files, and new orders.</p>
+
+<p>The system must comply with the following requirements:</p>
+
+<ul>
+  <li>All orders must be disbursed precisely once.</li>
+  <li>Each disbursement, the group of orders paid on the same date for a merchant, must have a unique alphanumerical <code class="language-plaintext highlighter-rouge">reference</code>.</li>
+  <li>Orders, amounts, and fees included in disbursements must be easily identifiable for reporting purposes.</li>
+</ul>
+
+<p>The disbursements calculation process must be completed, for all merchants, by 8:00 UTC daily, only including those merchants that fulfill the requirements to be disbursed on that day. Merchants can be disbursed daily or weekly. We will make weekly disbursements on the same weekday as their <code class="language-plaintext highlighter-rouge">live_on</code> date (when the merchant started using seQura, present in the CSV files). Disbursements groups all the orders for a merchant in a given day or week.</p>
+
+<p>For each order included in a disbursement, seQura will take a commission, which will be subtracted from the merchant order value gross of the current disbursement, following this pricing:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">1.00 %</code> fee for orders with an amount strictly smaller than <code class="language-plaintext highlighter-rouge">50 €</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">0.95 %</code> fee for orders with an amount between <code class="language-plaintext highlighter-rouge">50 €</code> and <code class="language-plaintext highlighter-rouge">300 €</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">0.85 %</code> fee for orders with an amount of <code class="language-plaintext highlighter-rouge">300 €</code> or more.</li>
+</ul>
+
+<p><em>Remember that we are dealing with money, so we should be careful with related operations. In this case, we should round up to two decimals following.</em></p>
+
+<p>Lastly, on the first disbursement of each month, we have to ensure the <code class="language-plaintext highlighter-rouge">minimum_monthly_fee</code> for the previous month was reached. The <code class="language-plaintext highlighter-rouge">minimum_monthly_fee</code> ensures that seQura earns at least a given amount for each merchant.</p>
+
+<p>When a merchant generates less than the <code class="language-plaintext highlighter-rouge">minimum_monthly_fee</code> of orders’ commissions in the previous month, we will charge the amount left, up to the <code class="language-plaintext highlighter-rouge">minimum_monthly_fee</code> configured, as “monthly fee”. Nothing will be charged if the merchant generated more fees than the <code class="language-plaintext highlighter-rouge">minimum_monthly_fee</code>.</p>
+
+<p>Charging the <code class="language-plaintext highlighter-rouge">minimum_monthly_fee</code> is out of the scope of this challenge. It is not subtracted from the disbursement commissions. Just calculate and store it for later usage.</p>
+
+<h2 id="data">Data</h2>
+
+<h3 id="merchants-sample">Merchants sample</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>id                                   | REFERENCE                 | EMAIL                             | LIVE_ON    | DISBURSEMENT_FREQUENCY | MINIMUM_MONTHLY_FEE
+2ae89f6d-e210-4993-b4d1-0bd2d279da62 | treutel_schumm_fadel      | info@treutel-schumm-and-fadel.com | 2022-01-01 | WEEKLY                 | 29.0
+6596b87d-7f13-460f-ba1a-00872c770092 | windler_and_sons          | info@windler-and-sons.com         | 2021-05-25 | DAILY                  | 29.0
+70de4478-bfa8-4c4c-97f1-4a0a149f8264 | mraz_and_sons             | info@mraz-and-sons.com            | 2020-03-20 | WEEKLY                 |  0.0
+52f0e308-4a9d-4b32-ace4-c491f457d9a5 | cummerata_llc             | info@cummerata-llc.com            | 2019-02-04 | DAILY                  | 35.0
+</code></pre></div></div>
+
+<p>You can find <a href="/backend-challenge/merchants.csv">merchants CSV here</a>.</p>
+
+<h3 id="orders-samples">Orders samples</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>id           | MERCHANT REFERENCE      | AMOUNT | CREATED AT
+056d024481a9 | treutel_schumm_fadel    |  61.74 | 2023-01-01
+33c80364591c | cummerata_llc           | 293.08 | 2023-01-01
+5eaeabf54862 | mraz_and_sons           | 373.33 | 2023-01-01
+70530cdc7b59 | treutel_schumm_fadel    |  60.48 | 2023-01-01
+871e0d072782 | mraz_and_sons           | 213.97 | 2023-01-01
+</code></pre></div></div>
+
+<p>You can find <a href="/backend-challenge/orders.csv">orders CSV here</a>.</p>
+
+<p>We expect you to:</p>
+
+<ul>
+  <li>Create the necessary data structures and a way to persist them for the provided data. You don’t have to follow CSV’s schema if you think another one suits you better.</li>
+  <li>Calculate and store the disbursements following described requirements for all the orders included in the CSV, and prepare the system to do the same for new orders.</li>
+  <li>Fill the following table and include it in the README.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Number of disbursements</th>
+      <th>Amount disbursed to merchants</th>
+      <th>Amount of order fees</th>
+      <th>Number of monthly fees charged (From minimum monthly fee)</th>
+      <th>Amount of monthly fee charged (From minimum monthly fee)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2022</td>
+      <td>365</td>
+      <td>50.023,45 €</td>
+      <td>750,34 €</td>
+      <td>50</td>
+      <td>650,00 €</td>
+    </tr>
+    <tr>
+      <td>2023</td>
+      <td>400</td>
+      <td>75.000,35 €</td>
+      <td>950,43 €</td>
+      <td>49</td>
+      <td>750,00 €</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><em>Note that the table values are samples, not the correct numbers.</em></p>
+
+<h2 id="instructions">Instructions</h2>
+
+<p>Please <strong>read carefully</strong> the challenge, and if you have <strong>any doubts or need extra info</strong>, please don’t hesitate to <strong>ask</strong> us before starting.</p>
+
+<ul>
+  <li>Create a <strong>README</strong> explaining:
+    <ol>
+      <li>How to <strong>set up and and run</strong> your solution</li>
+      <li>An explanation of your technical choices, tradeoffs, assumptions you took, etc.</li>
+      <li>If you left things aside due to time constraints, explain why and how you would resolve or improve them.</li>
+    </ol>
+  </li>
+  <li>You should <strong>consider this code ready for production</strong> as it was a PR to be reviewed by a colleague. Also, commit as if it were a real-world feature.</li>
+  <li><strong>Design, test, develop and document the code.</strong> It should be a performant, clean, and well-structured solution.</li>
+  <li>You <strong>shouldn’t spend more than 6h</strong> on the challenge.</li>
+  <li>You can code the solution in a language of your choice. Here are some technologies we are more familiar with (in no particular order): JavaScript, Ruby, Python, Go, Elixir, Java, Kotlin, and PHP.</li>
+  <li>Your <strong>experience level will be taken into consideration</strong> when evaluating.</li>
+</ul>
+
+<p>When completed, send a zip with your README and code, including the <code class="language-plaintext highlighter-rouge">.git</code> folder to see the commit log, to your hiring contact.</p>
+
+
+      
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
+    <script>anchors.add();</script>
+  </body>
+</html>
